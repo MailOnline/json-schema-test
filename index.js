@@ -10,10 +10,8 @@ module.exports = jsonSchemaTest;
 
 
 function jsonSchemaTest(validators, opts) {
-  describe('Schema validation tests', function() {
-    for (var suiteName in opts.suites)
-      addTests(suiteName, opts.suites[suiteName]);
-  });
+  for (var suiteName in opts.suites)
+    addTests(suiteName, opts.suites[suiteName]);
 
 
   function addTests(suiteName, testsPath) {
@@ -27,7 +25,9 @@ function jsonSchemaTest(validators, opts) {
         }
 
         skipOrOnly(filter, describe)(file.name, function() {
-          var testSets = require(path.join(opts.cwd, file.path));
+          var testPath = path.join(opts.cwd, file.path)
+            , testDir = path.dirname(testPath);
+          var testSets = require(testPath);
           testSets.forEach(function (testSet) {
             skipOrOnly(testSet, describe)(testSet.description, function() {
               testSet.tests.forEach(function (test) {
@@ -37,8 +37,13 @@ function jsonSchemaTest(validators, opts) {
                 });
 
                 function doTest(validator) {
-                  var valid = validator.validate(testSet.schema, test.data);
-                  if (valid !== test.valid) console.log('result', valid, test.valid, validate.errors);
+                  if (test.dataFile) {
+                    var dataFile = path.resolve(testDir, test.dataFile);
+                    var data = require(dataFile);
+                  } else
+                    var data = test.data;
+                  var valid = validator.validate(testSet.schema, data);
+                  if (valid !== test.valid) console.log('result', valid, test.valid, validator.errors);
                   assert.equal(valid, test.valid);
                   if (valid) assert(!validator.errors || validator.errors.length == 0);
                   else assert(validator.errors.length > 0);
