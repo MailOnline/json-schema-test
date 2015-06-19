@@ -63,7 +63,7 @@ function jsonSchemaTest(validators, opts) {
     return files.map(function (file) {
       var match = file.match(/(\w+\/)\w+\.json/)
       var folder = match ? match[1] : '';
-      if (folder == 'draft4/') folder = '';
+      if (opts.hideFolder && folder == opts.hideFolder) folder = '';
       return { path: file, name: folder + path.basename(file, '.json') };
     });
   }

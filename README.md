@@ -27,6 +27,7 @@ jsonSchemaTest([ ajv, tv4 ], {
   },
   only: ONLY_FILES,
   skip: SKIP_FILES,
-  cwd: __dirname
+  cwd: __dirname,
+  hideFolder: 'draft4/'
 });
 ```
