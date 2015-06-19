@@ -30,24 +30,18 @@ function jsonSchemaTest(validators, opts) {
           var testSets = require(path.join(opts.cwd, file.path));
           testSets.forEach(function (testSet) {
             skipOrOnly(testSet, describe)(testSet.description, function() {
-              var validateFuncs;
-              before(function() {
-                validateFuncs = Array.isArray(validators)
-                                ? validators.map(function (v) { return v.compile(testSet.schema); })
-                                : [ validators.compile(testSet.schema) ];
-              });
-
               testSet.tests.forEach(function (test) {
                 skipOrOnly(test, it)(test.description, function() {
-                  validateFuncs.forEach(doTest)
+                  if (Array.isArray(validators)) validators.forEach(doTest)
+                  else doTest(validators)
                 });
 
-                function doTest(validate) {
-                  var valid = validate(test.data);
+                function doTest(validator) {
+                  var valid = validator.validate(testSet.schema, test.data);
                   if (valid !== test.valid) console.log('result', valid, test.valid, validate.errors);
                   assert.equal(valid, test.valid);
-                  if (valid) assert(!validate.errors || validate.errors.length == 0);
-                  else assert(validate.errors.length > 0);
+                  if (valid) assert(!validator.errors || validator.errors.length == 0);
+                  else assert(validator.errors.length > 0);
                 }
               });
             });
