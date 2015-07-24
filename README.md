@@ -88,7 +88,7 @@ If validator instance has different API you can use [json-schema-consolidate](ht
 
 ##### options
 
-- _suites_ - the map of test suite names and paths to test files. Names are used in test report, paths are passed to [glob](https://github.com/isaacs/node-glob) module.
+- _suites_ - the map of test suite names and paths to test files. Names are used in test report, paths are passed to [glob](https://github.com/isaacs/node-glob) module. Instead of glob paths, the array of filenames (objects with `name` and `path` properties) of of actual tests (objects with `name` and `test` properties) can be passed.
 - _only_ - array of files to be tested (only last element of the path and the name without `.json` extension)
 - _skip_ - array of files to skip
 - _cwd_ - base path for files, passed to glob. Use `__dirname` to pass paths relative to the module in `suites` option

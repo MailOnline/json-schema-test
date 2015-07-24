@@ -14,9 +14,11 @@ function jsonSchemaTest(validators, opts) {
     addTests(suiteName, opts.suites[suiteName]);
 
 
-  function addTests(suiteName, testsPath) {
+  function addTests(suiteName, filesOrPath) {
     describe(suiteName, function() {
-      var files = getTestFiles(testsPath);
+      var files = Array.isArray(filesOrPath)
+                  ? filesOrPath
+                  : getTestFiles(filesOrPath);
 
       files.forEach(function (file) {
         var filter = {
@@ -25,9 +27,13 @@ function jsonSchemaTest(validators, opts) {
         }
 
         skipOrOnly(filter, describe)(file.name, function() {
-          var testPath = path.join(opts.cwd, file.path)
-            , testDir = path.dirname(testPath);
-          var testSets = require(testPath);
+          if (file.test) {
+            var testSets = file.test;
+          } else if (file.path) {
+            var testPath = file.path
+              , testDir = path.dirname(testPath);
+            var testSets = require(testPath);
+          }
           testSets.forEach(function (testSet) {
             skipOrOnly(testSet, describe)(testSet.description, function() {
               testSet.tests.forEach(function (test) {
@@ -38,7 +44,7 @@ function jsonSchemaTest(validators, opts) {
 
                 function doTest(validator) {
                   if (test.dataFile) {
-                    var dataFile = path.resolve(testDir, test.dataFile);
+                    var dataFile = path.resolve(testDir || '', test.dataFile);
                     var data = require(dataFile);
                   } else
                     var data = test.data;
@@ -63,13 +69,15 @@ function jsonSchemaTest(validators, opts) {
 
 
   function getTestFiles(testsPath) {
-    console.log('testsPath', testsPath, opts.cwd);
     var files = glob.sync(testsPath, { cwd: opts.cwd });
     return files.map(function (file) {
       var match = file.match(/(\w+\/)\w+\.json/)
       var folder = match ? match[1] : '';
       if (opts.hideFolder && folder == opts.hideFolder) folder = '';
-      return { path: file, name: folder + path.basename(file, '.json') };
+      return {
+        path: path.join(opts.cwd, file),
+        name: folder + path.basename(file, '.json')
+      };
     });
   }
 }
