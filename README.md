@@ -21,6 +21,7 @@ Example usage:
 var jsonSchemaTest = require('json-schema-test');
 
 jsonSchemaTest([ ajv, tv4 ], {
+  description: 'My schema tests',
   suites: {
     'JSON-Schema tests draft4': './JSON-Schema-Test-Suite/tests/draft4/{**/,}*.json',
     'Advanced schema tests': './tests/{**/,}*.json'
@@ -89,11 +90,12 @@ If validator instance has different API you can use [json-schema-consolidate](ht
 
 ##### options
 
+- _description_ - optional top level suite name (passed to top level describe).
 - _suites_ - the map of test suite names and paths to test files. Names are used in test report, paths are passed to [glob](https://github.com/isaacs/node-glob) module. Instead of glob paths, the array of filenames (objects with `name` and `path` properties) of of actual tests (objects with `name` and `test` properties) can be passed.
-- _only_ - array of files to be tested (only last element of the path and the name without `.json` extension)
-- _skip_ - array of files to skip
-- _cwd_ - base path for files, passed to glob. Use `__dirname` to pass paths relative to the module in `suites` option
-- _hideFolder_ - don't show this folder name in test reports (files will be shown without folder)
+- _only_ - array of files to be tested (only last element of the path and the name without `.json` extension).
+- _skip_ - array of files to skip.
+- _cwd_ - base path for files, passed to glob. Use `__dirname` to pass paths relative to the module in `suites` option.
+- _hideFolder_ - don't show this folder name in test reports (files will be shown without folder).
 - _timeout_ - mocha test timeout in ms, 2000 by default.
 
 

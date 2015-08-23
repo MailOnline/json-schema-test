@@ -10,7 +10,7 @@ module.exports = jsonSchemaTest;
 
 
 function jsonSchemaTest(validators, opts) {
-  describe('JSON schema tests', function() {
+  describe(opts.description || 'JSON schema tests', function() {
     if (opts.timeout) this.timeout(opts.timeout);
     for (var suiteName in opts.suites)
       addTests(suiteName, opts.suites[suiteName]);
