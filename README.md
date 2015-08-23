@@ -28,7 +28,8 @@ jsonSchemaTest([ ajv, tv4 ], {
   only: ONLY_FILES,
   skip: SKIP_FILES,
   cwd: __dirname,
-  hideFolder: 'draft4/'
+  hideFolder: 'draft4/',
+  timeout: 10000
 });
 ```
 
@@ -93,6 +94,7 @@ If validator instance has different API you can use [json-schema-consolidate](ht
 - _skip_ - array of files to skip
 - _cwd_ - base path for files, passed to glob. Use `__dirname` to pass paths relative to the module in `suites` option
 - _hideFolder_ - don't show this folder name in test reports (files will be shown without folder)
+- _timeout_ - mocha test timeout in ms, 2000 by default.
 
 
 ## License
