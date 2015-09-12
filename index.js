@@ -56,6 +56,14 @@ function jsonSchemaTest(validators, opts) {
                   assert.equal(valid, test.valid);
                   if (valid) assert(!validator.errors || validator.errors.length == 0);
                   else assert(validator.errors.length > 0);
+
+                  if (opts.afterEach) opts.afterEach({
+                    validator: validator,
+                    schema: testSet.schema,
+                    data: data,
+                    valid: valid,
+                    errors: validator.errors
+                  });
                 }
               });
             });

@@ -26,12 +26,18 @@ jsonSchemaTest([ ajv, tv4 ], {
     'JSON-Schema tests draft4': './JSON-Schema-Test-Suite/tests/draft4/{**/,}*.json',
     'Advanced schema tests': './tests/{**/,}*.json'
   },
+  afterEach: afterEachFunc,
   only: ONLY_FILES,
   skip: SKIP_FILES,
   cwd: __dirname,
   hideFolder: 'draft4/',
   timeout: 10000
 });
+
+function afterEachFunc(result) {
+  // result is an object with properties: validator, schema, data, valid, errors
+  // ...
+}
 ```
 
 
@@ -92,6 +98,7 @@ If validator instance has different API you can use [json-schema-consolidate](ht
 
 - _description_ - optional top level suite name (passed to top level describe).
 - _suites_ - the map of test suite names and paths to test files. Names are used in test report, paths are passed to [glob](https://github.com/isaacs/node-glob) module. Instead of glob paths, the array of filenames (objects with `name` and `path` properties) of of actual tests (objects with `name` and `test` properties) can be passed.
+- _afterEach_ - function that will be called after each test. The function is passed an object with properties validator, schema, data, valid, errors.
 - _only_ - array of files to be tested (only last element of the path and the name without `.json` extension).
 - _skip_ - array of files to skip.
 - _cwd_ - base path for files, passed to glob. Use `__dirname` to pass paths relative to the module in `suites` option.
