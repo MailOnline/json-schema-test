@@ -52,18 +52,26 @@ function jsonSchemaTest(validators, opts) {
                   } else
                     var data = test.data;
                   var valid = validator.validate(testSet.schema, data);
-                  if (valid !== test.valid) console.log('result', valid, test.valid, validator.errors);
-                  assert.equal(valid, test.valid);
+                  var passed = valid == test.valid;
+                  if (!passed && opts.log !== false)
+                    console.log('result:', valid, '\nexpected: ', test.valid, '\nerrors:', validator.errors);
                   if (valid) assert(!validator.errors || validator.errors.length == 0);
                   else assert(validator.errors.length > 0);
 
-                  if (opts.afterEach) opts.afterEach({
+                  var result = {
                     validator: validator,
                     schema: testSet.schema,
                     data: data,
                     valid: valid,
-                    errors: validator.errors
-                  });
+                    expected: test.valid,
+                    errors: validator.errors,
+                    passed: passed
+                  };
+
+                  if (opts.afterEach) opts.afterEach(result);
+                  if (opts.afterError && !passed) opts.afterError(result);
+
+                  assert(passed);
                 }
               });
             });

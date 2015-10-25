@@ -27,6 +27,8 @@ jsonSchemaTest([ ajv, tv4 ], {
     'Advanced schema tests': './tests/{**/,}*.json'
   },
   afterEach: afterEachFunc,
+  // afterError: afterErrorFunc,
+  log: false,
   only: ONLY_FILES,
   skip: SKIP_FILES,
   cwd: __dirname,
@@ -35,8 +37,18 @@ jsonSchemaTest([ ajv, tv4 ], {
 });
 
 function afterEachFunc(result) {
-  // result is an object with properties: validator, schema, data, valid, errors
+  // result is an object with properties:
+  //   validator, schema, data,
+  //   valid (validation result), expected (expected validation result),
+  //   errors (array of errors or null), passed (true if valid == expected)
+
+  // you can do some additional validation and logging
   // ...
+  console.log(res);
+
+  // Pass option log == false to prevent default error logging
+
+  // If result.passed is false the test will fails after this function returns
 }
 ```
 
@@ -98,7 +110,9 @@ If validator instance has different API you can use [json-schema-consolidate](ht
 
 - _description_ - optional top level suite name (passed to top level describe).
 - _suites_ - the map of test suite names and paths to test files. Names are used in test report, paths are passed to [glob](https://github.com/isaacs/node-glob) module. Instead of glob paths, the array of filenames (objects with `name` and `path` properties) of of actual tests (objects with `name` and `test` properties) can be passed.
-- _afterEach_ - function that will be called after each test. The function is passed an object with properties validator, schema, data, valid, errors.
+- _afterEach_ - the function that will be called after each test. The function is passed an object with properties validator, schema, data, valid, expected, errors, passed (see above in example).
+- _afterError_ - the function that is called if the test fails (the same result is passed as to _afterEach_ function).
+- _log_ - log errors, true by default. Pass `false` to prevent default error logging.
 - _only_ - array of files to be tested (only last element of the path and the name without `.json` extension).
 - _skip_ - array of files to skip.
 - _cwd_ - base path for files, passed to glob. Use `__dirname` to pass paths relative to the module in `suites` option.
