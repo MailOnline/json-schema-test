@@ -71,7 +71,7 @@ function jsonSchemaTest(validators, opts) {
                   if (opts.afterEach) opts.afterEach(result);
                   if (opts.afterError && !passed) opts.afterError(result);
 
-                  assert(passed);
+                  assert.equal(valid, test.valid);
                 }
               });
             });
