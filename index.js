@@ -1,15 +1,17 @@
 'use strict';
 
-
-var glob = require('glob')
-  , path = require('path')
-  , assert = require('assert');
+if (typeof window != 'object') {
+  var glob = require('' + 'glob');
+  var path = require('' + 'path');
+}
 
 
 module.exports = jsonSchemaTest;
 
 
 function jsonSchemaTest(validators, opts) {
+  var assert = opts.assert || require('' + 'assert');
+
   describe(opts.description || 'JSON schema tests', function() {
     if (opts.timeout) this.timeout(opts.timeout);
     for (var suiteName in opts.suites)
