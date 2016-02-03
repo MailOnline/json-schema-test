@@ -63,7 +63,7 @@ function jsonSchemaTest(validators, opts) {
                   } else
                     var data = test.data;
                   var valid = validator.validate(testSet.schema, data);
-                  if (opts.async && valid instanceof _Promise) {
+                  if (opts.async && typeof valid == 'object' && typeof valid.then == 'function') {
                     return valid.then(
                       function(_valid) { testResults(_valid, null) },
                       function(err) {
