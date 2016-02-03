@@ -11,8 +11,13 @@ module.exports = jsonSchemaTest;
 
 function jsonSchemaTest(validators, opts) {
   var assert = opts.assert || require('' + 'assert');
+  var _Promise;
+  if (opts.async) {
+    _Promise = opts.Promise || Promise;
+    if (!_Promise) throw new Error('async mode requires Promise support');
+  }
 
-  describe(opts.description || 'JSON schema tests', function() {
+  skipOrOnly(opts, describe)(opts.description || 'JSON schema tests', function() {
     if (opts.timeout) this.timeout(opts.timeout);
     for (var suiteName in opts.suites)
       addTests(suiteName, opts.suites[suiteName]);
@@ -27,8 +32,8 @@ function jsonSchemaTest(validators, opts) {
 
       files.forEach(function (file) {
         var filter = {
-          skip: opts.skip && opts.skip.indexOf(file.name) >= 0,
-          only: opts.only && opts.only.indexOf(file.name) >= 0
+          skip: getFileFilter(file, 'skip'),
+          only: getFileFilter(file, 'only')
         }
 
         skipOrOnly(filter, describe)(file.name, function() {
@@ -43,8 +48,12 @@ function jsonSchemaTest(validators, opts) {
             skipOrOnly(testSet, describe)(testSet.description, function() {
               testSet.tests.forEach(function (test) {
                 skipOrOnly(test, it)(test.description, function() {
-                  if (Array.isArray(validators)) validators.forEach(doTest)
-                  else doTest(validators)
+                  if (Array.isArray(validators)) {
+                    if (opts.async) return _Promise.all(validators.map(doTest));
+                    else validators.forEach(doTest);
+                  } else {
+                    return doTest(validators)
+                  }
                 });
 
                 function doTest(validator) {
@@ -54,26 +63,57 @@ function jsonSchemaTest(validators, opts) {
                   } else
                     var data = test.data;
                   var valid = validator.validate(testSet.schema, data);
-                  var passed = valid == test.valid;
-                  if (!passed && opts.log !== false)
-                    console.log('result:', valid, '\nexpected: ', test.valid, '\nerrors:', validator.errors);
-                  if (valid) assert(!validator.errors || validator.errors.length == 0);
-                  else assert(validator.errors.length > 0);
+                  if (opts.async && valid instanceof _Promise) {
+                    return valid.then(
+                      function(_valid) { testResults(_valid, null) },
+                      function(err) {
+                        if (err.errors) testResults(false, err.errors);
+                        else testException(err);
+                      }
+                    );
+                  } else {
+                    testResults(valid, validator.errors);
+                  }
 
-                  var result = {
-                    validator: validator,
-                    schema: testSet.schema,
-                    data: data,
-                    valid: valid,
-                    expected: test.valid,
-                    errors: validator.errors,
-                    passed: passed
-                  };
+                  function testResults(valid, errors) {
+                    var passed = valid === test.valid;
+                    if (!passed && opts.log !== false)
+                      console.log('result:', valid, '\nexpected: ', test.valid, '\nerrors:', validator.errors);
+                    if (valid) assert(!errors || errors.length == 0);
+                    else assert(errors.length > 0);
 
-                  if (opts.afterEach) opts.afterEach(result);
-                  if (opts.afterError && !passed) opts.afterError(result);
+                    suiteHooks(passed, valid, errors);
+                    assert.equal(valid, test.valid);
+                  }
 
-                  assert.equal(valid, test.valid);
+                  function testException(err) {
+                    var passed = err.message == test.error;
+                    if (!passed && opts.log !== false)
+                      console.log('error:', err.message,
+                        '\nexpected: ',
+                        test.valid ? 'valid'
+                          : test.valid === false ? 'invalid'
+                          : 'error ' + test.error);
+
+                    suiteHooks(passed);
+                    assert.equal(err.message, test.error);
+                  }
+
+                  function suiteHooks(passed, valid, errors) {
+                    var result = {
+                      passed: passed,
+                      validator: validator,
+                      schema: testSet.schema,
+                      data: data,
+                      valid: valid,
+                      expected: test.valid,
+                      expectedError: test.error,
+                      errors: errors
+                    };
+
+                    if (opts.afterEach) opts.afterEach(result);
+                    if (opts.afterError && !passed) opts.afterError(result);
+                  }
                 }
               });
             });
@@ -81,11 +121,16 @@ function jsonSchemaTest(validators, opts) {
         });
       });
     });
+
+    function getFileFilter(file, property) {
+      var filter = opts[property];
+      return Array.isArray(filter) && filter.indexOf(file.name) >= 0;
+    }
   }
 
 
   function skipOrOnly(filter, func) {
-    return filter.only ? func.only : filter.skip ? func.skip : func;
+    return filter.only === true ? func.only : filter.skip === true ? func.skip : func;
   }
 
 
