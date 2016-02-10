@@ -48,7 +48,8 @@ function jsonSchemaTest(validators, opts) {
             skipOrOnly(testSet, describe)(testSet.description, function() {
               if (Array.isArray(testSet.schemas))
                 testSet.schemas.forEach(function (schema, i) {
-                  describe(schema.description || ('schema #' + i), function() {
+                  var descr = schema.description || schema.id || schema.$ref || ('#' + i);
+                  describe('schema ' + descr, function() {
                     testSchema(schema);
                   });
                 });
