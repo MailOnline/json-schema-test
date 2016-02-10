@@ -17,7 +17,7 @@ The module is designed to be used inside mocha test (global describe etc. should
 
 Example usage:
 
-```
+```javascript
 var jsonSchemaTest = require('json-schema-test');
 
 jsonSchemaTest([ ajv, tv4 ], {
@@ -61,7 +61,7 @@ The library runs tests defined in JSON consructed using the same format as the t
 
 Each test file should have this format:
 
-```
+```javascript
 [
   { // schema to be tested, there can be multiple schemas in each file
     // only: true,  // only this schema will be tested
@@ -69,6 +69,7 @@ Each test file should have this format:
     description: 'The description is shown in the test report',
     // schema object or reference if the validator supports it
     schema: { ... } // or 'http://schema.example.com/schema.json#',
+    // schemas: []  // array of schema objects or refs (schema property won't be used)
     tests: [        // test cases for the schema
       {
         // only: true,  // only this data sample will be tested
@@ -90,6 +91,8 @@ Each test file should have this format:
   // , ...
 ]
 ```
+
+The schema for the test file is in [test_file_schema.json](https://github.com/MailOnline/json-schema-test/blob/master/test_file_schema.json).
 
 
 ## Parameters

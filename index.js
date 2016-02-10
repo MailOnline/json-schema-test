@@ -46,76 +46,87 @@ function jsonSchemaTest(validators, opts) {
           }
           testSets.forEach(function (testSet) {
             skipOrOnly(testSet, describe)(testSet.description, function() {
-              testSet.tests.forEach(function (test) {
-                skipOrOnly(test, it)(test.description, function() {
-                  if (Array.isArray(validators)) {
-                    if (opts.async) return _Promise.all(validators.map(doTest));
-                    else validators.forEach(doTest);
-                  } else {
-                    return doTest(validators)
+              if (Array.isArray(testSet.schemas))
+                testSet.schemas.forEach(function (schema, i) {
+                  describe(schema.description || ('schema #' + i), function() {
+                    testSchema(schema);
+                  });
+                });
+              else
+                testSchema(testSet.schema);
+
+              function testSchema(schema) {
+                testSet.tests.forEach(function (test) {
+                  skipOrOnly(test, it)(test.description, function() {
+                    if (Array.isArray(validators)) {
+                      if (opts.async) return _Promise.all(validators.map(doTest));
+                      else validators.forEach(doTest);
+                    } else {
+                      return doTest(validators)
+                    }
+                  });
+
+                  function doTest(validator) {
+                    if (test.dataFile) {
+                      var dataFile = path.resolve(testDir || '', test.dataFile);
+                      var data = require(dataFile);
+                    } else
+                      var data = test.data;
+                    var valid = validator.validate(schema, data);
+                    if (opts.async && typeof valid == 'object' && typeof valid.then == 'function') {
+                      return valid.then(
+                        function(_valid) { testResults(_valid, null) },
+                        function(err) {
+                          if (err.errors) testResults(false, err.errors);
+                          else testException(err);
+                        }
+                      );
+                    } else {
+                      testResults(valid, validator.errors);
+                    }
+
+                    function testResults(valid, errors) {
+                      var passed = valid === test.valid;
+                      if (!passed && opts.log !== false)
+                        console.log('result:', valid, '\nexpected: ', test.valid, '\nerrors:', validator.errors);
+                      if (valid) assert(!errors || errors.length == 0);
+                      else assert(errors.length > 0);
+
+                      suiteHooks(passed, valid, errors);
+                      assert.equal(valid, test.valid);
+                    }
+
+                    function testException(err) {
+                      var passed = err.message == test.error;
+                      if (!passed && opts.log !== false)
+                        console.log('error:', err.message,
+                          '\nexpected: ',
+                          test.valid ? 'valid'
+                            : test.valid === false ? 'invalid'
+                            : 'error ' + test.error);
+
+                      suiteHooks(passed);
+                      assert.equal(err.message, test.error);
+                    }
+
+                    function suiteHooks(passed, valid, errors) {
+                      var result = {
+                        passed: passed,
+                        validator: validator,
+                        schema: schema,
+                        data: data,
+                        valid: valid,
+                        expected: test.valid,
+                        expectedError: test.error,
+                        errors: errors
+                      };
+
+                      if (opts.afterEach) opts.afterEach(result);
+                      if (opts.afterError && !passed) opts.afterError(result);
+                    }
                   }
                 });
-
-                function doTest(validator) {
-                  if (test.dataFile) {
-                    var dataFile = path.resolve(testDir || '', test.dataFile);
-                    var data = require(dataFile);
-                  } else
-                    var data = test.data;
-                  var valid = validator.validate(testSet.schema, data);
-                  if (opts.async && typeof valid == 'object' && typeof valid.then == 'function') {
-                    return valid.then(
-                      function(_valid) { testResults(_valid, null) },
-                      function(err) {
-                        if (err.errors) testResults(false, err.errors);
-                        else testException(err);
-                      }
-                    );
-                  } else {
-                    testResults(valid, validator.errors);
-                  }
-
-                  function testResults(valid, errors) {
-                    var passed = valid === test.valid;
-                    if (!passed && opts.log !== false)
-                      console.log('result:', valid, '\nexpected: ', test.valid, '\nerrors:', validator.errors);
-                    if (valid) assert(!errors || errors.length == 0);
-                    else assert(errors.length > 0);
-
-                    suiteHooks(passed, valid, errors);
-                    assert.equal(valid, test.valid);
-                  }
-
-                  function testException(err) {
-                    var passed = err.message == test.error;
-                    if (!passed && opts.log !== false)
-                      console.log('error:', err.message,
-                        '\nexpected: ',
-                        test.valid ? 'valid'
-                          : test.valid === false ? 'invalid'
-                          : 'error ' + test.error);
-
-                    suiteHooks(passed);
-                    assert.equal(err.message, test.error);
-                  }
-
-                  function suiteHooks(passed, valid, errors) {
-                    var result = {
-                      passed: passed,
-                      validator: validator,
-                      schema: testSet.schema,
-                      data: data,
-                      valid: valid,
-                      expected: test.valid,
-                      expectedError: test.error,
-                      errors: errors
-                    };
-
-                    if (opts.afterEach) opts.afterEach(result);
-                    if (opts.afterError && !passed) opts.afterError(result);
-                  }
-                }
-              });
+              }
             });
           });
         });
