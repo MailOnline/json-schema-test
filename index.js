@@ -68,11 +68,14 @@ function jsonSchemaTest(validators, opts) {
                   });
 
                   function doTest(validator) {
+                    var data;
                     if (test.dataFile) {
                       var dataFile = path.resolve(testDir || '', test.dataFile);
-                      var data = require(dataFile);
-                    } else
-                      var data = test.data;
+                      data = require(dataFile);
+                    } else {
+                      data = test.data;
+                    }
+
                     var valid = validator.validate(schema, data);
                     if (opts.async && typeof valid == 'object' && typeof valid.then == 'function') {
                       return valid.then(
