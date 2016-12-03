@@ -19,8 +19,13 @@ describe('passing tests', () => {
 
   jsonSchemaTest([ajv, ajv], {
     description: 'passing tests, two validators',
-    suites: { 'tests': './tests/*.pass.json' },
+    suites: { 'tests': './tests/*.json' },
     cwd: __dirname,
+    skip: [
+      'standard.fail',
+      'standard.fail.async',
+      'standard.pass.async'
+    ],
     afterEach: () => hookCalled = true
   });
 
