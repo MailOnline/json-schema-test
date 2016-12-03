@@ -1,0 +1,15 @@
+[
+  {
+    "description": "standard format: failing",
+    "schema": {
+      "type": "integer"
+    },
+    "tests": [
+      {
+        "description": "integer is valid (failing test)",
+        "data": 1,
+        "valid": false
+      }
+    ]
+  }
+]

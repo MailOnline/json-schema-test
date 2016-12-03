@@ -4,7 +4,10 @@
   "description": "Testing JSON schemas against sample data",
   "main": "index.js",
   "scripts": {
-    "test": "echo \"Error: no test specified\" && exit 1"
+    "test-pass": "mocha spec/*.pass.js -R spec",
+    "test-fail": "mocha spec/*.fail.js -R spec | grep ' 0 passing' | grep -q '0'",
+    "test-spec": "npm run test-pass && npm run test-fail",
+    "test": "nyc npm run test-spec"
   },
   "repository": {
     "type": "git",
@@ -23,5 +26,20 @@
   "homepage": "https://github.com/MailOnline/json-schema-test",
   "dependencies": {
     "glob": "^5.0.10"
+  },
+  "devDependencies": {
+    "ajv": "^4.9.0",
+    "mocha": "^3.2.0",
+    "nyc": "^10.0.0"
+  },
+  "nyc": {
+    "exclude": [
+      "**/spec/**",
+      "node_modules"
+    ],
+    "reporter": [
+      "lcov",
+      "text-summary"
+    ]
   }
 }

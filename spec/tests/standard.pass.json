@@ -1,0 +1,25 @@
+[
+  {
+    "description": "same format as in JSON-Schema-Test-Suite",
+    "schema": {
+      "type": "integer"
+    },
+    "tests": [
+      {
+        "description": "integer is valid",
+        "data": 1,
+        "valid": true
+      },
+      {
+        "description": "non-integer number is invalid",
+        "data": 1.1,
+        "valid": false
+      },
+      {
+        "description": "non-number is invalid",
+        "data": "foo",
+        "valid": false
+      }
+    ]
+  }
+]
