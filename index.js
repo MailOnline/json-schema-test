@@ -90,6 +90,8 @@ function jsonSchemaTest(validators, opts) {
                     }
 
                     function testResults(valid, errors) {
+                      if (opts.asyncValid == 'data' && test.valid === true)
+                        valid = valid === data;
                       var passed = valid === test.valid;
                       if (!passed && opts.log !== false)
                         console.log('result:', valid, '\nexpected: ', test.valid, '\nerrors:', validator.errors);

@@ -29,6 +29,7 @@ jsonSchemaTest([ ajv, tv4 ], {
     'Advanced schema tests': './tests/{**/,}*.json'
   },
   // async: true,
+  // asyncValid: true, // or 'data', deafult is true
   afterEach: afterEachFunc,
   // afterError: afterErrorFunc,
   log: false,
@@ -118,6 +119,7 @@ If validator instance has different API you can use [json-schema-consolidate](ht
 - _description_ - optional top level suite name (passed to top level describe).
 - _suites_ - the map of test suite names and paths to test files. Names are used in test report, paths are passed to [glob](https://github.com/isaacs/node-glob) module. Instead of glob paths, the array of filenames (objects with `name` and `path` properties) of of actual tests (objects with `name` and `test` properties) can be passed.
 - _async_ - pass `true` if validate function is asynchronous and returns the Promise. The promise should resolve with true or reject with the exception that has `.errors` property (array of errors). The promise may also reject with any error (and if it is the expected result, the test case in json file should specify `error` property with the message instead of `valid` property). That is the asynchronous api of [Ajv](https://github.com/epoberezkin/ajv) - use an adaptor in case you are using some validator with a different api. It's safe to use async option if some results are synchronous, the results will simply be wrapped in the promise.
+- _asyncValid_ - pass 'data' if in case of successful validation promise resolves with validated data. Otherwise, `true` will be expected.
 - _afterEach_ - the function that will be called after each test. The function is passed an object with properties validator, schema, data, valid, expected, errors, passed (see above in example).
 - _afterError_ - the function that is called if the test fails (the same result is passed as to _afterEach_ function).
 - _log_ - log errors, true by default. Pass `false` to prevent default error logging.
