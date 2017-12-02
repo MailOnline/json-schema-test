@@ -154,7 +154,7 @@ function jsonSchemaTest(validators, opts) {
   function getTestFiles(testsPath) {
     var files = glob.sync(testsPath, { cwd: opts.cwd });
     return files.map(function (file) {
-      var match = file.match(/(\w+\/)\w+\.json/)
+      var match = file.match(/([\w\-_]+\/)[\w\-_]+\.json/)
       var folder = match ? match[1] : '';
       if (opts.hideFolder && folder == opts.hideFolder) folder = '';
       return {
