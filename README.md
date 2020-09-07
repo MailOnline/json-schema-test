@@ -53,7 +53,7 @@ function afterEachFunc(result) {
 
   // Pass option log == false to prevent default error logging
 
-  // If result.passed is false the test will fails after this function returns
+  // If result.passed is false the test will fail after this function returns
 }
 ```
 
